@@ -9,6 +9,7 @@ struct Student{
     char name[10];
     int grade;
     int doesCompile;
+    char letterGrade[2];
 };
 
 struct Student students[NUM_STUDENTS];
@@ -45,10 +46,10 @@ void makeStudentGrades(){
         if (students[i].name[0] != '\0'){
             
             if (students[i].doesCompile){
-                fprintf(graded_ptr,"%s %d\n",students[i].name,students[i].grade);
+                fprintf(graded_ptr,"%s %d %s\n",students[i].name,students[i].grade,students[i].letterGrade);
             }
             else{
-                fprintf(graded_ptr,"%s %s\n",students[i].name,"DNC");
+                fprintf(graded_ptr,"%s %s %s\n",students[i].name,"DNC", "F");
             }
                 
         }
@@ -56,6 +57,44 @@ void makeStudentGrades(){
     fclose(graded_ptr);
 }
 
+const char* getGrade(int grade){
+    if(grade >= 94){
+        return "A";
+    }
+    else if(grade >= 89){
+        return "A-";
+    }
+    else if(grade >= 86){
+        return "B+";
+    }
+    else if(grade >= 82){
+        return "B";
+    }
+    else if(grade >= 78){
+        return "B-";
+    }
+    else if(grade >= 75){
+        return "C+";
+    }
+    else if(grade >= 71){
+        return "C";
+    }
+    else if(grade >= 68){
+        return "C-";
+    }
+    else if(grade >= 65){
+        return "D+";
+    }
+    else if(grade >= 61){
+        return "D";
+    }
+    else if(grade >= 58){
+        return "D-";
+    }
+    else{
+        return "F";
+    }
+}
 
 int main(){
     const char* path = ".";
@@ -83,12 +122,16 @@ int main(){
             int studentNumber;
             int doesCompile = compileCheck(submission_path);
             int grade = gradeSubmission(100, rubric_ptr,submission_ptr);
+            char gradeCharacter[3]; 
+            strcpy(gradeCharacter, getGrade(grade));
 
             sscanf(file->d_name, "student%d-", &studentNumber);
 
             sprintf(students[studentNumber].name, "student%d", studentNumber);
+            strcpy(students[studentNumber].letterGrade,gradeCharacter);
             students[studentNumber].grade = grade;
             students[studentNumber].doesCompile = doesCompile;
+            
 
             // Clean up
             fseek(rubric_ptr, 0, SEEK_SET);
