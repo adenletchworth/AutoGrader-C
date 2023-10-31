@@ -3,10 +3,10 @@
 #include <dirent.h>
 #include <stdlib.h>
 
-struct submission{
-    char student[15];
-    int grade;
-};
+int doesCompile(FILE* submission){
+    //check if code compiles
+    return 0;
+}
 
 int gradeSubmission(int total_score, FILE* rubric, FILE* submission){
     char submission_line[100];
@@ -29,6 +29,7 @@ int main(){
 
     DIR* directory = opendir(path);
     FILE *rubric_ptr = fopen("answer_code.c","r");
+    FILE *graded_ptr = fopen("student_grades","w");
 
     if (!directory){
         printf("Error opening directory \n");
@@ -48,7 +49,7 @@ int main(){
             FILE *submission_ptr = fopen(submission_path,"r");
 
             int grade = gradeSubmission(100, rubric_ptr,submission_ptr);
-            printf("%d \n", grade);
+            fprintf(graded_ptr,"%d\n",grade);
             
             fseek(rubric_ptr, 0, SEEK_SET);
             fclose(submission_ptr);
@@ -60,6 +61,9 @@ int main(){
         printf("Error closing directory \n");
         return 1;
     }
+
     fclose(rubric_ptr);
+    fclose(graded_ptr);
+
     return 0;
 }
