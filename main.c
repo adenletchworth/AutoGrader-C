@@ -3,16 +3,16 @@
 #include <dirent.h>
 #include <stdlib.h>
 
-#define NUM_STUDENTS 10
+#define CAPACITY 10
 
 struct Student{
     char name[10];
     int grade;
     int doesCompile;
-    char letterGrade[2];
+    char letterGrade[3];
 };
 
-struct Student students[NUM_STUDENTS];
+struct Student* students;
 
 
 int compileCheck(char* file_path){
@@ -38,11 +38,11 @@ int gradeSubmission(int total_score, FILE* rubric, FILE* submission){
     return total_score;
 }
 
-void makeStudentGrades(){
+void makeStudentGrades(int count){
 
     FILE *graded_ptr = fopen("student_grades","w");
 
-    for (int i = 0; i < NUM_STUDENTS;i++){
+    for (int i = 0; i < count+1;i++){
         if (students[i].name[0] != '\0'){
             
             if (students[i].doesCompile){
@@ -107,11 +107,19 @@ int main(){
         return 1;
     }
 
+    int count = 0;
+    students = (struct Student*)malloc(CAPACITY * sizeof(struct Student));
+
+    int capacity = CAPACITY;
+
     struct dirent* file;
 
     while ((file = readdir(directory)) != NULL){
         if (strstr(file->d_name, "hw1.c")) {
-
+            if(count >= capacity){
+                capacity *= 2;
+                students = (struct Student*)realloc(students, capacity * sizeof(struct Student));
+            }
             char* submission_path = (char*)malloc(strlen(path) + strlen(file->d_name) + 2);
             strcpy(submission_path, path);
             strcat(submission_path, "/");
@@ -120,18 +128,22 @@ int main(){
             FILE *submission_ptr = fopen(submission_path,"r");
             
             int studentNumber;
-            int doesCompile = compileCheck(submission_path);
-            int grade = gradeSubmission(100, rubric_ptr,submission_ptr);
-            char gradeCharacter[3]; 
-            strcpy(gradeCharacter, getGrade(grade));
-
             sscanf(file->d_name, "student%d-", &studentNumber);
 
+            if (studentNumber >= capacity) {
+                capacity = studentNumber + 1; 
+                students = (struct Student*)realloc(students, capacity * sizeof(struct Student));
+            }
+
+            int doesCompile = compileCheck(submission_path);
+            int grade = gradeSubmission(100, rubric_ptr,submission_ptr);
+            char gradeCharacter[3]={'\0'};
             sprintf(students[studentNumber].name, "student%d", studentNumber);
             strcpy(students[studentNumber].letterGrade,gradeCharacter);
             students[studentNumber].grade = grade;
             students[studentNumber].doesCompile = doesCompile;
             
+            count++;
 
             // Clean up
             fseek(rubric_ptr, 0, SEEK_SET);
@@ -147,7 +159,9 @@ int main(){
 
     fclose(rubric_ptr);
 
-    makeStudentGrades();
+    makeStudentGrades(count);
+
+    free(students);
 
     return 0;
 }
