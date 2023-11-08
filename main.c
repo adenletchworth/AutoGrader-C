@@ -32,7 +32,6 @@ int gradeSubmission(int total_score, FILE* rubric, FILE* submission){
             total_score -= 1;
             continue;
         }
-
     }
 
     return total_score;
@@ -137,9 +136,8 @@ int main(){
 
             int doesCompile = compileCheck(submission_path);
             int grade = gradeSubmission(100, rubric_ptr,submission_ptr);
-            char gradeCharacter[3]={'\0'};
             sprintf(students[studentNumber].name, "student%d", studentNumber);
-            strcpy(students[studentNumber].letterGrade,gradeCharacter);
+            strcpy(students[studentNumber].letterGrade,getGrade(grade));
             students[studentNumber].grade = grade;
             students[studentNumber].doesCompile = doesCompile;
             
